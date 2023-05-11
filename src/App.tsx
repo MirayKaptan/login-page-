@@ -1,26 +1,21 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { FunctionComponent } from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import WelcomePage from "./pages/welcome";
+import LoginPage from "./pages/loginPage";
 
-function App() {
+export interface AppProps {}
+
+const App: FunctionComponent<AppProps> = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<WelcomePage />} />
+          <Route path="/login-page" element={<LoginPage />} />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
-}
+};
 
 export default App;
