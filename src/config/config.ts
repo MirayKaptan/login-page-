@@ -4,5 +4,5 @@ export const firebaseConfiguration = {
   projectId: "login-page-ed9d8",
   storageBucket: "login-page-ed9d8.appspot.com",
   messagingSenderId: "451061013683",
-  appId: "1:451061013683:web:fe56a38c0e3a6131e364c6",
+  appId: "1:451061013683:web:712677daaa20c41be364c6",
 };
