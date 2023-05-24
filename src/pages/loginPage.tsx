@@ -1,15 +1,38 @@
+import { initializeApp } from "firebase/app";
 import GoogleIcon from "../assets/googleIcon";
 import FacebookIcon from "../assets/facebookIcon";
 import { FunctionComponent, useState } from "react";
 import "firebase/auth";
 import "firebase/firestore";
 import Registration from "./registrationPage";
-
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
+import { firebaseConfiguration } from "../config/config";
 interface LoginPageProps {}
 
 const LoginPage: FunctionComponent<LoginPageProps> = () => {
   const [isRegistrationPage, setIsRegistrationPage] = useState<boolean>(false);
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const [isLogin, setIsLogin] = useState<boolean>(false);
+  const navigate = useNavigate();
+  const app = initializeApp(firebaseConfiguration);
+  const auth = getAuth(app);
 
+  const handleLogin = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        console.log("user logged in", user);
+        navigate("/dashboard-page");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
   if (isRegistrationPage) {
     return <Registration />;
   }
@@ -45,10 +68,12 @@ const LoginPage: FunctionComponent<LoginPageProps> = () => {
             <div className="mb-5">
               <input
                 type="text"
-                id="username"
-                name="username"
+                id="email"
+                name="email"
                 placeholder="Email"
                 className="border bg-gray-50 border-gray-200 p-2 w-full rounded-lg"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
               />
             </div>
             <div className="mb-5">
@@ -58,11 +83,15 @@ const LoginPage: FunctionComponent<LoginPageProps> = () => {
                 name="password"
                 placeholder="Password"
                 className="border bg-gray-50 border-gray-200 p-2 w-full rounded-lg"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
               />
             </div>
             <button
+              disabled={isLogin}
               type="submit"
               className="w-full bg-blue-700 text-white py-2 px-4 rounded-lg hover:bg-blue-700"
+              onClick={handleLogin}
             >
               Log in
             </button>
@@ -86,8 +115,9 @@ const LoginPage: FunctionComponent<LoginPageProps> = () => {
             <p className="flex justify-center text-gray-500 text-xs mt-5">
               Dont't have an account?{" "}
               <button
+                disabled={isLogin}
                 className="text-blue-700 ml-2"
-                onClick={() => setIsRegistrationPage(true)}
+                onClick={() => navigate("/registration-page")}
               >
                 Create an account!
               </button>
