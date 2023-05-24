@@ -1,10 +1,11 @@
 import { initializeApp } from "firebase/app";
 import "firebase/auth";
 import { FunctionComponent, useState } from "react";
-
+import { firebaseConfiguration } from "../config/config";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import ErrorText from "../components/errorText";
-import { firebaseConfiguration } from "../config/config";
+import { useNavigate } from "react-router-dom";
+
 interface RegistrationProps {}
 
 const RegistrationPage: FunctionComponent<RegistrationProps> = () => {
@@ -13,22 +14,22 @@ const RegistrationPage: FunctionComponent<RegistrationProps> = () => {
   const [confirm, setConfirm] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [isRegistration, setIsRegistration] = useState<boolean>(false);
+  const navigate = useNavigate();
+
   const signUpWithEmailAndPassword = () => {
     if (password !== confirm) {
       setError("Please make sure your passwords match.");
       return;
     }
-
     setError("");
     setIsRegistration(true);
-
     const app = initializeApp(firebaseConfiguration);
     const auth = getAuth(app);
-
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
         console.log("User registered:", user);
+        navigate("/login-page");
       })
       .catch((error) => {
         console.log("Registration error:", error);
@@ -41,6 +42,7 @@ const RegistrationPage: FunctionComponent<RegistrationProps> = () => {
         }
       });
   };
+
   return (
     <div className="flex flex-col md:flex-row h-screen items-center">
       <div className="flex justify-center items-center bg-white w-full md:w-1/2 h-screen ">
@@ -94,7 +96,12 @@ const RegistrationPage: FunctionComponent<RegistrationProps> = () => {
             </button>
             <p className="flex justify-center text-gray-500 text-xs mt-5 mr-2">
               Already have an account?
-              <button className="text-blue-700 ml-2">Log in!</button>
+              <button
+                onClick={() => navigate("/login-page")}
+                className="text-blue-700 ml-2"
+              >
+                Log in!
+              </button>
             </p>
             <ErrorText error={error} />
           </form>
