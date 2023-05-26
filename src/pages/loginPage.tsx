@@ -5,7 +5,12 @@ import { FunctionComponent, useState } from "react";
 import "firebase/auth";
 import "firebase/firestore";
 import Registration from "./registrationPage";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  getAuth,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+} from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { firebaseConfiguration } from "../config/config";
 interface LoginPageProps {}
@@ -36,7 +41,17 @@ const LoginPage: FunctionComponent<LoginPageProps> = () => {
   if (isRegistrationPage) {
     return <Registration />;
   }
-
+  const provider = new GoogleAuthProvider();
+  const handleGoogle = () => {
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        console.log(result);
+        navigate("/dashboard-page");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
   return (
     <div className="flex flex-col md:flex-row h-screen items-center">
       <div className="flex justify-center items-center bg-white w-full md:w-1/2 h-screen ">
@@ -49,6 +64,7 @@ const LoginPage: FunctionComponent<LoginPageProps> = () => {
             <button
               type="button"
               className="w-full h-10 text-sm bg-white border border-gray-100 text-black rounded-lg hover:bg-black-300"
+              onClick={handleGoogle}
             >
               <GoogleIcon className="inline-block w-6 h-6 mr-2" />
               Google
