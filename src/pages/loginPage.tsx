@@ -8,6 +8,7 @@ import Registration from "./registrationPage";
 import {
   GoogleAuthProvider,
   getAuth,
+  onAuthStateChanged,
   signInWithEmailAndPassword,
   signInWithPopup,
 } from "firebase/auth";
@@ -19,7 +20,6 @@ const LoginPage: FunctionComponent<LoginPageProps> = () => {
   const [isRegistrationPage, setIsRegistrationPage] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [error, setError] = useState<string>("");
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const navigate = useNavigate();
   const app = initializeApp(firebaseConfiguration);
@@ -27,12 +27,32 @@ const LoginPage: FunctionComponent<LoginPageProps> = () => {
 
   const handleLogin = (event: React.FormEvent) => {
     event.preventDefault();
-
+    onAuthStateChanged(auth, (user) => {
+      if (user !== null) {
+        user.providerData.forEach((profile) => {
+          const displayName = user.displayName;
+          const email = user.email;
+          const photoURL = user.photoURL;
+          const emailVerified = user.emailVerified;
+          const uid = user.uid;
+          console.log("  Provider-specific UID: ", uid);
+          console.log("  Name: ", displayName);
+          console.log("  Email: ", email);
+          console.log("  Photo URL: ", photoURL);
+          console.log("Verified email:", emailVerified);
+        });
+      } else {
+      }
+    });
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
-        console.log("user logged in", user);
-        navigate("/dashboard-page");
+        if (user.emailVerified) {
+          console.log("User logged in after verification", user);
+          navigate("/dashboard-page");
+        } else {
+          alert("Verify your email first");
+        }
       })
       .catch((error) => {
         console.log(error);
@@ -44,13 +64,22 @@ const LoginPage: FunctionComponent<LoginPageProps> = () => {
   const provider = new GoogleAuthProvider();
   const handleGoogle = () => {
     signInWithPopup(auth, provider)
-      .then((result) => {
-        console.log(result);
-        navigate("/dashboard-page");
+      .then((userCredentialGoogle) => {
+        if (userCredentialGoogle.user) {
+          const user = userCredentialGoogle.user;
+          console.log("User logged in after verification", user);
+          console.log(userCredentialGoogle);
+          navigate("/dashboard-page");
+        } else {
+          alert("Verify your email first");
+        }
       })
       .catch((error) => {
         console.log(error);
       });
+  };
+  const handlePassword = () => {
+    navigate("/forgotten-password-page");
   };
   return (
     <div className="flex flex-col md:flex-row h-screen items-center">
@@ -122,7 +151,10 @@ const LoginPage: FunctionComponent<LoginPageProps> = () => {
                 <label className="text-gray-500 text-xs">Remember me</label>
               </div>
               <div>
-                <button className="text-blue-700 text-xs">
+                <button
+                  className="text-blue-700 text-xs"
+                  onClick={handlePassword}
+                >
                   Forgotten password?
                 </button>
               </div>
