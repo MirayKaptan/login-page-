@@ -2,7 +2,11 @@ import { initializeApp } from "firebase/app";
 import "firebase/auth";
 import { FunctionComponent, useState } from "react";
 import { firebaseConfiguration } from "../config/config";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
 import ErrorText from "../components/errorText";
 import { useNavigate } from "react-router-dom";
 
@@ -25,9 +29,19 @@ const RegistrationPage: FunctionComponent<RegistrationProps> = () => {
     setIsRegistration(true);
     const app = initializeApp(firebaseConfiguration);
     const auth = getAuth(app);
+
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
+        sendEmailVerification(user)
+          .then(() => {
+            console.log("Email verification sent.");
+            alert("Email verification sent.");
+          })
+          .catch((error) => {
+            console.log("Error sending email verification:", error);
+          });
+
         console.log("User registered:", user);
         navigate("/login-page");
       })
