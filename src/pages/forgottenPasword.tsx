@@ -11,12 +11,13 @@ const ForgottenPassword: FunctionComponent<ForgottenPasswordProps> = () => {
     navigate("/login-page");
   };
   const handleForgotPassword = () => {
+    if (email !== "") {
+      alert("Password reset email sent");
+      navigate("/login-page");
+    }
     const auth = getAuth();
     sendPasswordResetEmail(auth, email)
-      .then(() => {
-        alert("Password reset email sent");
-        navigate("/login-page");
-      })
+      .then(() => {})
       .catch((error) => {
         console.log(error);
       });
