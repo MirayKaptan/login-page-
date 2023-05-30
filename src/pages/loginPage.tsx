@@ -18,9 +18,11 @@ interface LoginPageProps {}
 
 const LoginPage: FunctionComponent<LoginPageProps> = () => {
   const [isRegistrationPage, setIsRegistrationPage] = useState<boolean>(false);
+
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isLogin, setIsLogin] = useState<boolean>(false);
+  const [loginError, setLoginError] = useState<string>("");
   const navigate = useNavigate();
   const app = initializeApp(firebaseConfiguration);
   const auth = getAuth(app);
@@ -54,8 +56,19 @@ const LoginPage: FunctionComponent<LoginPageProps> = () => {
           alert("Verify your email first");
         }
       })
-      .catch((error) => {
-        console.log(error);
+      .catch((loginError) => {
+        console.log("Login error:", loginError);
+        if (loginError.code.includes("user-not-found")) {
+          alert("Please create an account to log in.");
+        } else if (loginError.code.includes("wrong-password")) {
+          alert("Invalid password.");
+        } else if (loginError.code.includes("too-many-requests")) {
+          alert(
+            "Access to this account has been temporarily disabled due to many failed login attempts. You can immediately restore it by resetting your password or you can try again later"
+          );
+        } else {
+          alert("Registration failed. Please try again later.");
+        }
       });
   };
   if (isRegistrationPage) {
